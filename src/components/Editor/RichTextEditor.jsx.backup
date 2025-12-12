@@ -1,0 +1,34 @@
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import FontFamily from '@tiptap/extension-font-family';
+import { TextStyle } from '@tiptap/extension-text-style';
+import Color from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
+import Subscript from '@tiptap/extension-subscript';
+import Superscript from '@tiptap/extension-superscript';
+TextStyle,
+    Color,
+    Highlight.configure({ multicolor: true }),
+    Subscript,
+    Superscript,
+    ShapeExtension,
+        ],
+content: content,
+    onUpdate: ({ editor }) => {
+        onChange(editor.getHTML());
+    },
+        editorProps: {
+    attributes: {
+        class: 'prose-editor',
+            },
+},
+    });
+
+// Allow parent to drive editor commands
+useImperativeHandle(ref, () => ({
+    insertContent: (html) => {
+        editor?.chain().focus().insertContent(html).run();
+    },
+    export default RichTextEditor;

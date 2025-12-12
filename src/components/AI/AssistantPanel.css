@@ -1,0 +1,119 @@
+.panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+    z-index: var(--z-modal-backdrop);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.assistant-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    background: var(--bg-elevated);
+    border-left: 1px solid var(--border-color);
+    box-shadow: var(--shadow-xl);
+    z-index: var(--z-modal);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.panel-title h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.panel-icon {
+    flex-shrink: 0;
+}
+
+.panel-tabs {
+    display: flex;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.tab-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.tab-button:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.tab-button.active {
+    background: var(--bg-elevated);
+    color: var(--color-primary);
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-xl);
+}
+
+/* Custom scrollbar for panel */
+.panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-full);
+}
+
+@media (max-width: 768px) {
+    .assistant-panel {
+        max-width: 100%;
+    }
+
+    .tab-button span {
+        display: none;
+    }
+
+    .tab-button {
+        padding: var(--spacing-sm);
+    }
+}

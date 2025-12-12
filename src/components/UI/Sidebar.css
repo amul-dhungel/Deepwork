@@ -1,0 +1,118 @@
+.stats-sidebar {
+    position: fixed;
+    top: 73px;
+    /* Below header */
+    right: 0;
+    width: 280px;
+    height: calc(100vh - 73px);
+    background: var(--bg-elevated);
+    border-left: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-lg);
+    z-index: var(--z-fixed);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+}
+
+.stat-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+}
+
+.stat-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.readability-info {
+    padding: var(--spacing-md);
+}
+
+.readability-info h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+}
+
+.readability-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.875rem;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+}
+
+.metric-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.readability-tip {
+    margin: var(--spacing-sm) 0 0 0;
+    padding: var(--spacing-sm);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+@media (max-width: 1024px) {
+    .stats-sidebar {
+        width: 240px;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-sidebar {
+        display: none;
+    }
+}

@@ -1,0 +1,454 @@
+.agent-sidebar {
+    width: 100%;
+    height: 100%;
+    /* Fill the wrapper */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Prevent sidebar itself from overflowing, content inside handles scroll */
+    background: #fafafa;
+}
+
+@media (max-width: 900px) {
+    .agent-sidebar {
+        width: 100%;
+        height: 100%;
+        border-left: none;
+        border-top: 1px solid #e2e8f0;
+    }
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.sidebar-subtitle {
+    margin: 4px 0 0 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.sidebar-section {
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+    margin-bottom: 8px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.section-header:hover {
+    background: #f8fafc;
+}
+
+.section-header span {
+    flex: 1;
+    font-weight: 500;
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+.badge {
+    background: var(--color-primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.section-content {
+    padding: 16px;
+    background: #fafafa;
+}
+
+.drop-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.drop-zone:hover {
+    background: #f8fafc;
+    border-color: var(--color-primary);
+}
+
+.drop-zone svg {
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.drop-zone p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.file-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.remove-btn:hover {
+    color: #ef4444;
+}
+
+.image-grid {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.image-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: white;
+}
+
+.image-item img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+}
+
+.image-item .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border-radius: 50%;
+    padding: 6px;
+}
+
+.image-item .remove-btn:hover {
+    background: rgba(239, 68, 68, 0.9);
+}
+
+.image-name {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.command-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.command-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.generate-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.generate-btn:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Scrollable Content Area */
+.sidebar-content.scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    height: 100%;
+}
+
+/* Generation Options */
+.generation-options {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
+}
+
+.options-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.option-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #475569;
+    cursor: pointer;
+    user-select: none;
+}
+
+.option-checkbox input[type="checkbox"] {
+    accent-color: var(--color-primary);
+    width: 16px;
+    height: 16px;
+}
+
+/* Tabs */
+.sidebar-tabs {
+    display: flex;
+    border-bottom: 2px solid #e1e4e8;
+    background: white;
+    flex-shrink: 0;
+    /* Don't shrink tabs */
+}
+
+/* ... existing styles ... */
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+.tab-btn.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+.tab-btn:hover:not(.active) {
+    background: #f8fafc;
+    color: #334155;
+}
+
+.sidebar-content {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.references-tab {
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.references-tab h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: #1e293b;
+    margin-bottom: 16px;
+}
+
+.empty-state {
+    color: #64748b;
+    font-size: 0.875rem;
+    text-align: center;
+    margin-top: 24px;
+}
+
+.references-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reference-item {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.reference-header {
+    padding: 12px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.reference-header:hover {
+    background: #f8fafc;
+}
+
+.apa-text {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #334155;
+    flex: 1;
+    margin-right: 8px;
+}
+
+.reference-abstract {
+    padding: 12px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.reference-abstract h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.05em;
+}
+
+.reference-abstract p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #475569;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* Upload areas in Compose tab */
+.upload-zone {
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+}
+
+.upload-zone .section-header {
+    background: #fbfbfb;
+    padding: 12px 16px;
+}
+
+.upload-content {
+    padding: 16px;
+    background: white;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 24px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    cursor: pointer;
+    text-align: center;
+}
+
+.command-area {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.command-area textarea {
+    flex: 1;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    resize: none;
+    min-height: 150px;
+}

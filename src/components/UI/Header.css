@@ -1,0 +1,92 @@
+.app-header {
+    height: 48px;
+    background: linear-gradient(180deg, #0078d4 0%, #106ebe 100%);
+    border-bottom: 1px solid #005a9e;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    background: white;
+    color: #0078d4;
+}
+
+.logo-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    color: white;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-secondary {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: white;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.divider-vertical {
+    width: 1px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.3);
+}
