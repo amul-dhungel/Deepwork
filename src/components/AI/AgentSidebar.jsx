@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, FileText, Image as ImageIcon, Send, Loader, ChevronDown, ChevronRight, X } from 'lucide-react';
 import './AgentSidebar.css';
-import { uploadFiles, generateContent } from '../../services/api';
+import { uploadFiles, generateContent, getModelStatus } from '../../services/api';
 
-const AgentSidebar = ({ onInsertContent, onAddReference, sessionId }) => {
+const AgentSidebar = ({ onInsertContent, onAddReference, sessionId, modelProvider, setModelProvider }) => {
+    const [modelStatuses, setModelStatuses] = useState({});
+
+    useEffect(() => {
+        getModelStatus().then(statuses => setModelStatuses(statuses));
+    }, []);
+
     const [activeTab, setActiveTab] = useState('compose'); // 'compose' | 'references'
 
     const [expandedSections, setExpandedSections] = useState({
@@ -32,11 +38,61 @@ const AgentSidebar = ({ onInsertContent, onAddReference, sessionId }) => {
         }));
     };
 
-    const toggleDocExpansion = (index) => {
-        setExpandedDocs(prev => ({
-            ...prev,
-            [index]: !prev[index]
-        }));
+    const toggleDocExpansion = async (index) => {
+        // Toggle expansion
+        setExpandedDocs(prev => {
+            const newState = { ...prev, [index]: !prev[index] };
+            return newState;
+        });
+
+        // If expanding and no detailed summary exists, fetch it
+        if (!expandedDocs[index]) { // Check if we are expanding (state update is async, so check inverted or current)
+            // Wait, logic above toggles it strictly. The state update hasn't happened yet in this closure if we used function update? 
+            // Actually, `expandedDocs` here is the *current* state before update. So if it WAS false (closed), we are opening it.
+            // So `!expandedDocs[index]` is true means we are opening.
+
+            const doc = documents[index];
+            // Only fetch if we don't have it and we are opening
+            if (!doc.detailedSummary) {
+                try {
+                    // Update UI to show loading state
+                    setDocuments(prev => {
+                        const newDocs = [...prev];
+                        newDocs[index] = { ...newDocs[index], isLoadingSummary: true };
+                        return newDocs;
+                    });
+
+
+
+                    // Dynamic import to avoid circular dependency issues if any, or just standard import usage
+                    const { generateSummary } = await import('../../services/api');
+                    const summary = await generateSummary(doc.name, modelProvider);
+
+                    // Update doc with real summary
+                    setDocuments(prev => {
+                        const newDocs = [...prev];
+                        newDocs[index] = {
+                            ...newDocs[index],
+                            summary: summary,
+                            detailedSummary: true,
+                            isLoadingSummary: false
+                        };
+                        return newDocs;
+                    });
+                } catch (err) {
+                    console.error("Failed to summarize", err);
+                    setDocuments(prev => {
+                        const newDocs = [...prev];
+                        newDocs[index] = {
+                            ...newDocs[index],
+                            isLoadingSummary: false,
+                            summary: "Failed to load summary. " + err.message
+                        };
+                        return newDocs;
+                    });
+                }
+            }
+        }
     };
 
     const toggleSection = (section) => {
@@ -150,7 +206,8 @@ const AgentSidebar = ({ onInsertContent, onAddReference, sessionId }) => {
                 options: generationOptions,
                 key_points: [],
                 style: 'professional',
-                tone: 'informative'
+                tone: 'informative',
+                modelProvider: modelProvider
             };
 
             const data = await generateContent(payload);
@@ -175,6 +232,10 @@ const AgentSidebar = ({ onInsertContent, onAddReference, sessionId }) => {
 
     return (
         <div className="agent-sidebar">
+            <div className="sidebar-header">
+                <h2>AI Assistant</h2>
+                <p className="sidebar-subtitle" style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Research & Writing Partner</p>
+            </div>
             <div className="sidebar-tabs">
                 <button
                     className={`tab-btn ${activeTab === 'compose' ? 'active' : ''}`}
@@ -349,8 +410,14 @@ const AgentSidebar = ({ onInsertContent, onAddReference, sessionId }) => {
 
                                         {expandedDocs[idx] && (
                                             <div className="reference-abstract">
-                                                <h4>Abstract / Summary</h4>
-                                                <p>{doc.summary || "No abstract available for this document. Content is used for AI generation."}</p>
+                                                <h4>AI Summary</h4>
+                                                {doc.isLoadingSummary ? (
+                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: '#64748b', fontSize: '0.85rem' }}>
+                                                        <Loader className="spin" size={14} /> Generating comprehensive summary...
+                                                    </div>
+                                                ) : (
+                                                    <p>{doc.summary || "No abstract available for this document."}</p>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -360,6 +427,78 @@ const AgentSidebar = ({ onInsertContent, onAddReference, sessionId }) => {
                     </div>
                 )
             }
+            {/* Bottom Model Selector */}
+            <div className="model-selector-footer" style={{
+                padding: '12px',
+                borderTop: '1px solid #e2e8f0',
+                background: '#f8fafc'
+            }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#64748b', marginBottom: '8px' }}>
+                    ACTIVE MODEL
+                </label>
+                <div className="custom-select-wrapper" style={{ position: 'relative' }}>
+                    <select
+                        value={modelProvider}
+                        onChange={(e) => setModelProvider(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            paddingRight: '30px', /* space for icon */
+                            borderRadius: '6px',
+                            border: '1px solid #cbd5e1',
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            outline: 'none',
+                            backgroundColor: 'white',
+                            appearance: 'none',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="gemini">Google Gemini 2.0 {modelStatuses['gemini'] !== 'ok' && '(Limited)'}</option>
+                        <option value="openai">OpenAI GPT-4o {modelStatuses['openai'] !== 'ok' && '(Limited)'}</option>
+                        <option value="deepseek">DeepSeek V3 {modelStatuses['deepseek'] !== 'ok' && '(Limited)'}</option>
+                        <option value="llama">Llama 3 (Groq) {modelStatuses['llama'] !== 'ok' && '(Limited)'}</option>
+                        <option value="grok">Grok (xAI) {modelStatuses['grok'] !== 'ok' && '(Limited)'}</option>
+                        <option value="zhipu">Zhipu AI (GLM-4) {modelStatuses['zhipu'] !== 'ok' && '(Limited)'}</option>
+                        <option value="ollama">Ollama (Local) {modelStatuses['ollama'] !== 'ok' && '(Offline)'}</option>
+                        <option value="manus">Manus AI</option>
+                    </select>
+                    <ChevronDown size={14} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#64748b' }} />
+
+                    {/* Status Dot */}
+                    <div style={{
+                        position: 'absolute',
+                        right: '30px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: modelStatuses[modelProvider] === 'ok' ? '#22c55e' : (modelStatuses[modelProvider] ? '#ef4444' : '#94a3b8'),
+                        boxShadow: '0 0 0 2px white'
+                    }} title={
+                        !modelStatuses[modelProvider] ? "Checking..." :
+                            modelStatuses[modelProvider] === 'ok' ? "System Operational" :
+                                modelStatuses[modelProvider] === 'offline' ? "System Offline (Connection Refused)" :
+                                    modelStatuses[modelProvider] === 'quota_exceeded' ? "Quota Exceeded (Free Tier Limit)" :
+                                        modelStatuses[modelProvider] === 'usage_limit' ? "Insufficient Balance (Add Credits)" :
+                                            modelStatuses[modelProvider] === 'no_credits' ? "No Credits / Permission Denied" :
+                                                "System Error"
+                    } />
+                </div>
+                {modelStatuses[modelProvider] && modelStatuses[modelProvider] !== 'ok' && (
+                    <div style={{ marginTop: '6px', fontSize: '0.75rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>
+                            {modelStatuses[modelProvider] === 'offline' && "🔌 System Offline (Start App)"}
+                            {modelStatuses[modelProvider] === 'quota_exceeded' && "⚠️ Quota Exceeded (Wait 24h)"}
+                            {modelStatuses[modelProvider] === 'usage_limit' && "💳 Insufficient Balance"}
+                            {modelStatuses[modelProvider] === 'no_credits' && "💳 No Credits Available"}
+                            {modelStatuses[modelProvider] === 'missing_key' && "🔑 API Key Missing"}
+                            {modelStatuses[modelProvider] === 'error' && "❌ Error Checking Status"}
+                        </span>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

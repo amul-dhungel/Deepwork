@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tiptap/extension-bubble-menu": "^3.13.0",
     "@tiptap/extension-character-count": "^3.13.0",
     "@tiptap/extension-color": "^3.13.0",
     "@tiptap/extension-font-family": "^3.13.0",

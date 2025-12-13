@@ -23,11 +23,16 @@ import FontControls from './FontControls';
 import './RichTextEditor.css';
 import { useEffect, forwardRef, useImperativeHandle } from 'react';
 
-const RichTextEditor = forwardRef(({ content, onChange }, ref) => {
+import BubbleMenu from '@tiptap/extension-bubble-menu';
+import EditorBubbleMenu from './EditorBubbleMenu';
+
+const RichTextEditor = forwardRef(({ content, onChange, modelProvider }, ref) => {
     const editor = useEditor({
         extensions: [
             StarterKit,
-            // Underline, // Removed to fix duplicate warning
+            BubbleMenu.configure({
+                pluginKey: 'bubbleMenu',
+            }),
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
             FontFamily,
             TextStyle,
@@ -42,7 +47,7 @@ const RichTextEditor = forwardRef(({ content, onChange }, ref) => {
                     class: 'editor-image',
                 },
             }),
-            CharacterCount, // Added to fix crash
+            CharacterCount,
             Table.configure({
                 resizable: true,
                 HTMLAttributes: {
@@ -77,6 +82,7 @@ const RichTextEditor = forwardRef(({ content, onChange }, ref) => {
     return (
         <div className="editor-wrapper">
             <EditorToolbar editor={editor} />
+            <EditorBubbleMenu editor={editor} modelProvider={modelProvider} />
             <div className="editor-scroller">
                 <EditorContent editor={editor} />
             </div>

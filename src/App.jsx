@@ -20,6 +20,9 @@ function App() {
   // Session Management
   const [sessionId, setSessionId] = useState(null);
 
+  // AI Model Provider State
+  const [modelProvider, setModelProvider] = useState('gemini');
+
   useEffect(() => {
     let storedSession = localStorage.getItem('word_ai_session_id');
     if (!storedSession) {
@@ -85,6 +88,7 @@ function App() {
               ref={editorRef}
               content={content}
               onChange={handleContentChange}
+              modelProvider={modelProvider}
             />
           </div>
 
@@ -93,6 +97,8 @@ function App() {
               onInsertContent={handleAgentInsert}
               onAddReference={handleAddReference}
               sessionId={sessionId}
+              modelProvider={modelProvider}
+              setModelProvider={setModelProvider}
             />
           </div>
         </div>
