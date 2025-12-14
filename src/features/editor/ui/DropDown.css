@@ -1,0 +1,74 @@
+/* Dropdown Styles Extracted */
+.toolbar-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #334155;
+    min-height: 28px;
+}
+
+.dropdown-button:hover {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+.dropdown-button .text {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 4px;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #334155;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    text-align: left;
+    width: 100%;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.dropdown-item.active {
+    background-color: #eff6ff;
+    color: #2563eb;
+}

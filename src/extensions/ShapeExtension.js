@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import ShapeComponent from '../components/Editor/ShapeComponent';
+import ShapeComponent from '@/features/editor/components/ShapeComponent';
 
 export default Node.create({
     name: 'shape',

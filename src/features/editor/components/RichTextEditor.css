@@ -1,0 +1,297 @@
+/** Core Editor Shell */
+.editor-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f3f3f3;
+    /* Light gray background */
+    overflow: hidden;
+    /* Toolbar stays fixed, container scrolls */
+}
+
+/* Scrollable Container */
+.editor-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 40px 0;
+    /* Vertical padding around the page */
+    display: block;
+    /* FLIX: Changed from flex to block to avoid Lexical/Chrome focusing issues */
+    text-align: center;
+    /* Helper to center the child inline-block/block if needed */
+}
+
+/* The "Paper" Page */
+.editor-input {
+    background-color: white;
+    width: 816px;
+    /* Standard A4/Letter width approx */
+    min-height: 1056px;
+    /* Standard Letter height approx */
+    padding: 60px 80px;
+    /* Standard document margins */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    outline: none;
+    font-family: 'Arial', sans-serif;
+    font-size: 15px;
+    /* Readable default size */
+    color: #000;
+    position: relative;
+    box-sizing: border-box;
+    /* Ensure padding doesn't affect width */
+    margin: 0 auto;
+    /* FIX: Center the page in the block container */
+    text-align: left;
+    /* Reset text alignment from parent's center */
+}
+
+/* Placeholder text */
+.editor-placeholder {
+    position: absolute;
+    top: 60px;
+    left: 80px;
+    color: #9ca3af;
+    pointer-events: none;
+    user-select: none;
+    font-size: 15px;
+}
+
+/* Theme Classes */
+.editor-paragraph {
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+
+.editor-heading-h1 {
+    /* font-size: 24px; REMOVED to allow editor resizing */
+    font-weight: bold;
+    margin: 16px 0 8px 0;
+}
+
+.editor-heading-h2 {
+    /* font-size: 20px; REMOVED to allow editor resizing */
+    font-weight: bold;
+    margin: 14px 0 6px 0;
+}
+
+.editor-heading-h3 {
+    /* font-size: 18px; REMOVED to allow editor resizing */
+    font-weight: bold;
+    margin: 12px 0 4px 0;
+}
+
+.editor-quote {
+    border-left: 4px solid #cbd5e1;
+    padding-left: 16px;
+    margin: 10px 0;
+    color: #64748b;
+    font-style: italic;
+}
+
+.editor-list-ol {
+    margin: 0;
+    padding-left: 24px;
+}
+
+.editor-list-ul {
+    margin: 0;
+    padding-left: 24px;
+}
+
+.editor-listitem {
+    margin: 4px 0;
+}
+
+.editor-nested-listitem {
+    list-style-type: none;
+}
+
+.editor-text-bold {
+    font-weight: bold;
+}
+
+.editor-text-italic {
+    font-style: italic;
+}
+
+.editor-text-underline {
+    text-decoration: underline;
+}
+
+.editor-text-strikethrough {
+    text-decoration: line-through;
+}
+
+.editor-text-underlineStrikethrough {
+    text-decoration: underline line-through;
+}
+
+.editor-text-code {
+    background-color: #f1f5f9;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.editor-link {
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* New: Code Blocks */
+.editor-code {
+    background-color: #f1f5f9;
+    font-family: monospace;
+    display: block;
+    padding: 8px 16px;
+    line-height: 1.5;
+    border-radius: 4px;
+    margin: 8px 0;
+    tab-size: 2;
+    overflow-x: auto;
+    position: relative;
+}
+
+.editor-code:before {
+    content: attr(data-gutter);
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-right: 1px solid #ccc;
+    background-color: #eee;
+    color: #777;
+    white-space: pre-wrap;
+    text-align: right;
+    min-width: 25px;
+    padding: 8px 4px;
+    display: none;
+    /* simplified for now */
+}
+
+/* Syntax Highlighting (prism-like) */
+.editor-tokenComment {
+    color: slategray;
+}
+
+.editor-tokenPunctuation {
+    color: #999;
+}
+
+.editor-tokenProperty {
+    color: #905;
+}
+
+.editor-tokenSelector {
+    color: #690;
+}
+
+.editor-tokenOperator {
+    color: #9a6e3a;
+}
+
+.editor-tokenAttr {
+    color: #07a;
+}
+
+.editor-tokenVariable {
+    color: #e90;
+}
+
+.editor-tokenFunction {
+    color: #dd4a68;
+}
+
+/* New: Tables */
+.editor-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    max-width: 100%;
+    margin-bottom: 24px;
+}
+
+.editor-table-cell {
+    border: 1px solid #cbd5e1;
+    padding: 8px;
+    min-width: 75px;
+    vertical-align: top;
+    position: relative;
+}
+
+.editor-table-cell-header {
+    background-color: #f1f5f9;
+    font-weight: bold;
+}
+
+/* New: Horizontal Rule */
+.editor-hr {
+    border: none;
+    border-top: 1px solid #cbd5e1;
+    margin: 24px 0;
+    cursor: pointer;
+}
+
+.editor-hr.selected {
+    outline: 2px solid #2563eb;
+}
+
+/* New: Images */
+.editor-image {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+    cursor: default;
+}
+
+.editor-image.focused {
+    outline: 2px solid #2563eb;
+}
+
+/* Checklist */
+.editor-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.editor-checklist .editor-listitem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.editor-checklist .editor-listitem:before {
+    content: '';
+    /* This logic is handled by CheckListPlugin usually, 
+       replacing standard bullets with checkboxes. 
+       We will need careful CSS or SVG replacement if using standard lists. 
+       Actually, standard ListItemNode supports checking via attribute? 
+       No, Lexical CheckListPlugin changes the DOM structure slightly. */
+}
+
+/* New: Loading Animation */
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.loading-gradient {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradientBG 5s ease infinite;
+    color: white;
+    border: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}

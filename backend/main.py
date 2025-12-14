@@ -24,7 +24,29 @@ import json
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes aggressively
+# Enable CORS manually to handle all cases robustly
+# CORS(app) # Disable Flask-CORS to avoid conflicts
+
+@app.after_request
+def add_cors_headers(response):
+    origin = request.headers.get('Origin')
+    if origin:
+        response.headers['Access-Control-Allow-Origin'] = origin
+    else:
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Session-ID, Access-Control-Allow-Credentials'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    return response
+
+# Handle preflight requests explicitly
+@app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+@app.route('/<path:path>', methods=['OPTIONS'])
+def options_handler(path):
+    response = jsonify({'status': 'ok'})
+    # Headers set by after_request
+    return response
 
 # Config
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
@@ -252,7 +274,9 @@ def call_manus(prompt):
         
         if response.status_code == 200:
             data = response.json()
-            return f"Manus Task Started (ID: {data.get('id', 'Unknown')}). Check dashboard for results."
+            print(f"Manus API Response: {data}") # Debug logging
+            task_id = data.get('id') or data.get('taskId') or data.get('task_id') or 'Unknown'
+            return f"Manus Task Started (ID: {task_id}). Check dashboard for results."
         else:
             raise Exception(f"Manus Error {response.status_code}: {response.text}")
             
@@ -401,37 +425,76 @@ def call_zhipu(prompt):
         print(f"Network error communicating with Zhipu: {e}")
         raise Exception(f"Zhipu Network Error: {str(e)}")
 
-def call_ollama(prompt):
+def call_ollama(prompt, stream=False):
     # No Auth required normally for localhost
     headers = {
         "Content-Type": "application/json"
     }
     
     payload = {
-        "model": "gemma3:4b", # As requested by user
+        "model": "deepseek-v3.1:671b-cloud", # User requested specific model
         "messages": [{"role": "user", "content": prompt}],
-        "stream": False
+        "stream": stream
     }
     
     try:
-        print(f"Sending request to Ollama (Local)...")
+        print(f"Sending request to Ollama (Local) [Stream={stream}]...")
         # Ensure timeout is sufficient for local generation (models take time to load/gen)
+        # For streaming, we use stream=True in requests
         response = requests.post(
             OLLAMA_API_URL,
             headers=headers,
             json=payload,
-            timeout=120
+            timeout=120,
+            stream=stream
         )
         
         if response.status_code == 200:
-            data = response.json()
-            return data["message"]["content"]
+            if stream:
+                 # Generator for streaming
+                 for line in response.iter_lines():
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        try:
+                            json_obj = json.loads(decoded_line)
+                            if 'message' in json_obj and 'content' in json_obj['message']:
+                                yield json_obj['message']['content']
+                            if json_obj.get('done', False):
+                                break
+                        except json.JSONDecodeError:
+                            continue
+            else:
+                data = response.json()
+                return data["message"]["content"]
         else:
             raise Exception(f"Ollama Error {response.status_code}: {response.text}")
             
     except requests.exceptions.RequestException as e:
         print(f"Network error communicating with Ollama: {e}")
         raise Exception(f"Ollama Unreachable (Is it running?): {str(e)}")
+
+def generate_ai_response_stream(prompt, provider="gemini"):
+    """
+    Generator function that streams response text chunks.
+    Currently only implemented for Ollama/DeepSeek.
+    """
+    if provider == "ollama" or provider == "deepseek":
+         return call_ollama(prompt, stream=True)
+    elif provider == "mock":
+         # Mock stream for testing
+         def mock_generator():
+             import time
+             words = "This is a simulated streaming response from the backend.".split()
+             for word in words:
+                 time.sleep(0.1)
+                 yield word + " "
+         return mock_generator()
+    else:
+        # Fallback for non-streaming providers: wait and yield once
+        full_text = generate_ai_response(prompt, provider)
+        def one_shot_gen():
+            yield full_text
+        return one_shot_gen()
 
 # Unified generator
 def generate_ai_response(prompt, provider="gemini"):
@@ -498,7 +561,8 @@ def check_provider_status(provider_name):
 
 @app.route("/api/models/status", methods=["GET"])
 def get_models_status():
-    providers = ["gemini", "openai", "grok", "deepseek", "llama", "ollama", "zhipu"] # Skip manus for now due to complexity
+    providers = ["gemini", "openai", "grok", "deepseek", "llama", "ollama", "zhipu", "manus"] 
+    
     
     # Run checks in parallel
     results = {}
@@ -652,7 +716,8 @@ def upload_files():
     session['docs'].extend(uploaded_docs_metadata) # Store metadata in session too
 
     # Trim context if too large (simple optimized limit)
-    MAX_CONTEXT_CHARS = 100000
+    # Reduced from 100k to 50k for speed
+    MAX_CONTEXT_CHARS = 50000
     if len(session["context"]) > MAX_CONTEXT_CHARS:
         session["context"] = session["context"][-MAX_CONTEXT_CHARS:]
         
@@ -752,44 +817,52 @@ def generate_report():
         context_str = f"\nUse these uploaded documents as context/source material:\n{session['context']}\n\nAvailable Images:\n{image_context}\n"
     
     prompt = f"""
-    You are an expert academic and professional writer. 
-    Role: Write a comprehensive {data.get('style', 'professional')} document about "{topic}".
-    Tone: {tone}
-    
+    Act as an expert {data.get('role', 'Senior Data Analyst/Researcher')}. You are preparing a comprehensive professional report for {data.get('audience', 'Executive Stakeholders')}.
+
+    **REPORT SPECIFICATIONS:**
+    - **Primary Topic:** {topic}
+    - **Core Objective:** {purpose if purpose else f"To provide a comprehensive analysis of {topic}"}
+    - **Key Data/Content Requirements:** 
+    {chr(10).join([f"  * {point}" for point in key_points]) if key_points else "  * Detailed analysis of key metrics\n  * Strategic insights\n  * Data-driven recommendations"}
+
     {context_str}
 
-    Instructions:
-    1. **Format**: Return ONLY the **inner HTML body content**. 
-       - DO NOT include `<html>`, `<head>`, or `<body>` tags. 
-       - DO NOT wrap in markdown code blocks (no ```).
-    2. **Content Structure**: 
-       - **Minimize Bullet Points**: Prefer detailed, well-written paragraphs for "Narrative Flow". Only use lists when absolutely necessary for sequential steps or distinct data points.
-       - **NO Empty List Items**: Ensure every `<li>` contains text.
-       - **Professional Indexing**: Use `<ol>` only for numbered priorities/steps. Use `<ul>` for non-ordered items.
-    3. **Tags**:
-       - `<h1>` for Main Title.
-       - `<h2>` for Sections.
-       - `<h3>` for Subsections.
-       - `<p>` for paragraphs.
-    4. **References**:
-       - Include a **"References"** section at the end.
-       - **Strict Rule**: Cite the documents provided in the context using the Author/Title metadata found at the start of each document block. 
-       - If no author is listed, use "Anonymous".
-     
-    Specific Requirements:
-    { " - CREATE A COMPARISON TABLE: Isolate key data points and present them in a standard HTML <table> with <thead> and <tbody>." if include_table else "" }
-    { " - GENERATE A MERMAID DIAGRAM: Create a flowchart or sequence diagram using Mermaid syntax code block (```mermaid ... ```) to visualize the structure or process." if include_mermaid else "" }
-    { " - TABLE OF CONTENTS: Include a Table of Contents at the beginning, linking to the sections." if include_toc else "" }
+    **STRUCTURE & FORMATTING:**
+    Generate a research report following this structure. 
+    **Use Standard Markdown Formatting.**
     
-    Content Topic:
-    {topic}
+    STRICT RESPONSE FORMATTING RULES (CRITICAL):
+    1. **Output ONLY the report content.** Do not include "Here is your report" or similar.
+    2. Start with `# Title`.
+    3. Use `## Section` and `### Subsection`.
+    4. Use `**bold**` for key terms.
+    5. Use `- ` for bullet points.
+    6. Use ` ```language ` for code blocks.
+    7. **CRITICAL**: Insert **DOUBLE NEWLINES** between every section, paragraph, and header.
+
+    Report Structure:
+    1. **# Report Title**
+    2. **## Executive Summary**
+    3. **## Introduction**
+    4. **## Findings & Analysis**
+    5. **## Recommendations**
+    6. **## Conclusion**
+
+    **Content Requirements**:
+    - Tone: {tone}
+    - Perspective: Third-person professional.
+    
+    **SPECIAL INSTRUCTIONS:**
+    { " - Include a Markdown Table for data comparison." if include_table else "" }
+    { " - If asked to visualize, describe the diagram textually." if include_mermaid else "" }
     """
 
     provider = data.get("modelProvider", "gemini")
 
     try:
-        content = generate_ai_response(prompt, provider)
-        return jsonify({"content": content})
+        response_text = generate_ai_response(prompt, provider)
+        html_response = markdown_to_html(response_text)
+        return jsonify({"content": html_response})
     except Exception as e:
         error_msg = str(e)
         status_code = 500
@@ -910,6 +983,50 @@ def refine_text():
             status_code = 403
             
         return jsonify({"error": error_msg}), status_code
+
+        return jsonify({"error": error_msg}), status_code
+
+@app.route("/api/stream_chat", methods=["POST"])
+def stream_chat():
+    from flask import Response, stream_with_context
+    data = request.json
+    prompt = data.get("prompt")
+    provider = data.get("modelProvider", "gemini")
+    
+    if not prompt:
+        return jsonify({"error": "Prompt is required"}), 400
+
+    # formatting_prompt wrapper to ensure high quality markdown
+    formatted_prompt = f"""
+    SYSTEM INSTRUCTION: You are an intelligent professional writer.
+    Your task is to WRITE the content requested by the user.
+    
+    STRICT FORMATTING RULES:
+    1. Use standard **Markdown**.
+    2. TITLES: Start with `# Title`.
+    3. SECTIONS: Use `## Heading`.
+    4. TABLES: Use Markdown tables `| Col | Col |` for structured data.
+    5. LISTS: Use `- Item`.
+    6. NO FILLER: Do not say "Here is your report". Just write the document.
+    
+    USER REQUEST: {prompt}
+    """
+
+    def generate():
+        try:
+            # First yield a "starting" signal
+            yield json.dumps({"type": "start"}) + "\n"
+            
+            # Stream content
+            for chunk in generate_ai_response_stream(formatted_prompt, provider):
+                yield json.dumps({"type": "chunk", "content": chunk}) + "\n"
+                
+            # Final signal
+            yield json.dumps({"type": "done"}) + "\n"
+        except Exception as e:
+            yield json.dumps({"type": "error", "error": str(e)}) + "\n"
+
+    return Response(stream_with_context(generate()), mimetype='application/x-ndjson')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000, debug=True)

@@ -1,0 +1,124 @@
+.floating-toolbar {
+    display: flex;
+    background-color: white;
+    padding: 0.2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    position: absolute;
+    z-index: 50;
+    pointer-events: auto;
+    transition: opacity 0.2s, visibility 0.2s;
+    gap: 0;
+    /* Reset gap, controlled by children */
+}
+
+/* Button Group */
+.bm-group {
+    display: flex;
+}
+
+.bm-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    background: none;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 0.3rem;
+    min-height: 32px;
+    /* Ensure touch/click target */
+}
+
+.bm-btn:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Loading State in Menu */
+.bm-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    color: #64748b;
+    min-width: 120px;
+    justify-content: center;
+}
+
+/* Divider if needed, but user design didn't explicitly show one between distinct groups, 
+   but our plugin mixes formatting and AI. We'll keep it simple or remove if focusing on AI. 
+   User code shows ONLY AI buttons in the snippet. I will keep basic format for utility but style it differently or separate? 
+   User request: "this is code..i want like this". 
+   The user's code has NO bold/italic. Just Flow/Bullets/Extend. 
+   I will prioritize these AI buttons, maybe keep formatting minimal or remove to match exactly?
+   I'll keep formatting but match the style. 
+*/
+.divider {
+    width: 1px;
+    background-color: #e2e8f0;
+    height: 20px;
+    margin: 0 4px;
+    align-self: center;
+}
+
+
+/* Spinner */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Gemini Highlight Overlay - EXACT COPY from User - Adjusted for higher opacity */
+.gemini-highlight-overlay {
+    background: linear-gradient(90deg,
+            rgba(59, 130, 246, 0.95) 0%,
+            rgba(147, 51, 234, 0.95) 50%,
+            rgba(59, 130, 246, 0.95) 100%);
+    background-size: 200% 100%;
+    animation: gemini-shimmer 2s linear infinite, gemini-pulse 1.5s ease-in-out infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.8);
+    z-index: 9999 !important;
+    backdrop-filter: blur(4px);
+    /* Increased blur */
+    pointer-events: none;
+}
+
+@keyframes gemini-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes gemini-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.85;
+    }
+}
