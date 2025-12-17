@@ -23,6 +23,14 @@ import json
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
+# Import image generation service
+try:
+    from services.image_service import get_image_service
+    HAS_IMAGE_SERVICE = True
+except ImportError as e:
+    print(f"Warning: Image service not available: {e}")
+    HAS_IMAGE_SERVICE = False
+
 app = Flask(__name__)
 # Enable CORS manually to handle all cases robustly
 # CORS(app) # Disable Flask-CORS to avoid conflicts
@@ -432,7 +440,7 @@ def call_ollama(prompt, stream=False):
     }
     
     payload = {
-        "model": "deepseek-v3.1:671b-cloud", # User requested specific model
+        "model": "deepseek-v3.1:671b-cloud",  # Deep model for detailed, comprehensive responses
         "messages": [{"role": "user", "content": prompt}],
         "stream": stream
     }
@@ -585,6 +593,39 @@ def health_check():
         "service": "AI Word Assistant Backend (Flask + REST)",
         "active_sessions": len(sessions)
     })
+
+@app.route("/api/generate_card_image", methods=["POST"])
+def generate_card_image():
+    """Generate AI image for card design"""
+    if not HAS_IMAGE_SERVICE:
+        return jsonify({"error": "Image generation service not available"}), 500
+    
+    data = request.json
+    user_prompt = data.get('prompt', '')
+    style = data.get('style', 'digital-art')
+    
+    if not user_prompt:
+        return jsonify({"error": "Prompt is required"}), 400
+    
+    try:
+        # Get image service and generate
+        image_service = get_image_service()
+        result = image_service.generate_image(user_prompt, style)
+        
+        if result.get('success'):
+            return jsonify({
+                'image_base64': result['image_base64'],
+                'cached': result['cached'],
+                'cost': result['cost']
+            })
+        else:
+            return jsonify({
+                'error': result.get('error', 'Image generation failed')
+            }), 500
+            
+    except Exception as e:
+        print(f"Image generation error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/uploads/<path:filename>')
 def serve_file(filename):
@@ -996,18 +1037,54 @@ def stream_chat():
     if not prompt:
         return jsonify({"error": "Prompt is required"}), 400
 
-    # formatting_prompt wrapper to ensure high quality markdown
+    # Enhanced formatting prompt for detailed, comprehensive responses with diagrams
     formatted_prompt = f"""
-    SYSTEM INSTRUCTION: You are an intelligent professional writer.
-    Your task is to WRITE the content requested by the user.
+    SYSTEM INSTRUCTION: You are an expert professional writer and technical communicator.
+    Your task is to create COMPREHENSIVE, DETAILED content that thoroughly addresses the user's request.
     
-    STRICT FORMATTING RULES:
-    1. Use standard **Markdown**.
-    2. TITLES: Start with `# Title`.
-    3. SECTIONS: Use `## Heading`.
-    4. TABLES: Use Markdown tables `| Col | Col |` for structured data.
-    5. LISTS: Use `- Item`.
-    6. NO FILLER: Do not say "Here is your report". Just write the document.
+    CONTENT QUALITY REQUIREMENTS:
+    - Be THOROUGH and DETAILED - provide in-depth explanations
+    - Include relevant context, background, and examples
+    - Use clear, professional language
+    - Organize information logically with good flow
+    - NO FILLER phrases like "Here is your report" - start directly with content
+    
+    FORMATTING RULES:
+    1. **Markdown Structure**: Use `# Title`, `## Sections`, `### Subsections`
+    2. **Lists**: Use `- Item` for unordered, `1.` for ordered
+    3. **Tables**: Use markdown tables `| Col | Col |` for comparisons and data
+    4. **Emphasis**: Use **bold** for key terms, *italic* for emphasis
+    5. **Code**: Use `inline code` for technical terms
+    
+    DIAGRAMS - MULTIPLE DIAGRAMS ENCOURAGED:
+    When the topic benefits from visual explanation, create MULTIPLE diagrams to show:
+    - Overall architecture/system view
+    - Component details
+    - Process flows
+    - Relationships between concepts
+    
+    Each diagram MUST:
+    1. Output ONLY raw Excalidraw JSON - NO markdown wrappers, NO explanations
+    2. Have CLEAR labels on every shape (centered inside)
+    3. Use professional spacing (50px+ between elements)
+    4. Use color coding: Blues (#a5d8ff) for primary, Green (#51cf66) for success/data, Yellow (#ffd43b) for warnings/highlights, Gray (#e9ecef) for secondary
+    5. Be positioned separately (start each new diagram at y: 0 or y: 600+ to avoid overlap)
+    
+    DIAGRAM FORMAT:
+    {{"type": "excalidraw", "version": 2, "source": "AI", "elements": [rectangles, ellipses, diamonds, arrows, text_labels]}}
+    
+    REQUIRED SHAPE PROPERTIES:
+    {{"id": "shape_id", "type": "rectangle|ellipse|diamond", "x": 100, "y": 100, "width": 180, "height": 100, "angle": 0, "strokeColor": "#1e1e1e", "backgroundColor": "#a5d8ff", "fillStyle": "solid", "strokeWidth": 2, "roughness": 1, "opacity": 100, "seed": 12345, "version": 1, "versionNonce": 12345, "isDeleted": false, "boundElements": null, "updated": 1, "link": null, "locked": false}}
+    
+    REQUIRED TEXT LABEL PROPERTIES (for all shapes):
+    {{"id": "text_id", "type": "text", "x": 140, "y": 130, "width": 100, "height": 25, "angle": 0, "strokeColor": "#1e1e1e", "backgroundColor": "transparent", "fillStyle": "solid", "strokeWidth": 1, "roughness": 0, "opacity": 100, "seed": 67890, "fontSize": 16, "fontFamily": 1, "text": "Component Name", "textAlign": "center", "verticalAlign": "middle", "baseline": 14, "version": 1, "versionNonce": 67890, "isDeleted": false, "containerId": null, "originalText": "Component Name", "lineHeight": 1.25}}
+    
+    CONTENT + DIAGRAMS FLOW:
+    - Start with text introduction
+    - Insert first diagram (overview)
+    - Continue with detailed text
+    - Insert additional diagrams as needed (components, flows, etc.)
+    - End with summary text
     
     USER REQUEST: {prompt}
     """

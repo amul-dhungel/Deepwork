@@ -1,11 +1,11 @@
 :root {
-  /* Color Palette - Premium & Professional */
-  --color-primary-h: 220;
-  --color-primary-s: 90%;
-  --color-primary-l: 56%;
+  /* Color Palette - Premium Red Theme */
+  --color-primary-h: 0;
+  --color-primary-s: 85%;
+  --color-primary-l: 55%;
   --color-primary: hsl(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l));
-  --color-primary-dark: hsl(var(--color-primary-h), var(--color-primary-s), 46%);
-  --color-primary-light: hsl(var(--color-primary-h), var(--color-primary-s), 66%);
+  --color-primary-dark: hsl(var(--color-primary-h), var(--color-primary-s), 45%);
+  --color-primary-light: hsl(var(--color-primary-h), var(--color-primary-s), 65%);
 
   --color-secondary-h: 280;
   --color-secondary-s: 85%;

@@ -23,7 +23,7 @@ function App() {
   const [sessionId, setSessionId] = useState(null);
 
   // AI Model Provider State
-  const [modelProvider, setModelProvider] = useState('gemini');
+  const [modelProvider, setModelProvider] = useState('ollama');
 
   useEffect(() => {
     let storedSession = localStorage.getItem('word_ai_session_id');
@@ -47,10 +47,10 @@ function App() {
   };
 
   const handleAgentInsert = (text) => {
-    // Direct Lexical Markdown Parsing as requested
+    // Full content insertion for perfect formatting
     if (editorRef.current && editorRef.current.insertMarkdown) {
       editorRef.current.insertMarkdown(text);
-    } else { // Fallback to typeContent directly as typewriterRef is not defined
+    } else {
       typeContent(text);
     };
   };

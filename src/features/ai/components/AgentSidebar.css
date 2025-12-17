@@ -89,8 +89,8 @@
 }
 
 .drop-zone:hover {
-    background: #f8fafc;
-    border-color: var(--color-primary);
+    background: #fef2f2;
+    border-color: #dc2626;
 }
 
 .drop-zone svg {
@@ -203,8 +203,8 @@
 
 .command-input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 .generate-btn {
@@ -225,7 +225,9 @@
 }
 
 .generate-btn:hover:not(:disabled) {
-    background: #2563eb;
+    background: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .generate-btn:disabled {
@@ -451,4 +453,241 @@
     font-size: 0.875rem;
     resize: none;
     min-height: 150px;
+}
+
+
+/* Agent Selector Styles */
+.agent-selector-section {
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+}
+
+.agent-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+}
+
+.agent-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    user-select: none;
+}
+
+.agent-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.agent-card.active {
+    border-color: var(--agent-color, #3b82f6);
+    background: #fdfeff;
+    box-shadow: 0 0 0 2px var(--agent-color, #3b82f6), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.agent-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.agent-card:hover .agent-icon {
+    transform: scale(1.1);
+}
+
+.agent-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.agent-card.active .agent-name {
+    color: var(--agent-color, #3b82f6);
+}
+
+.create-new {
+    border: 1px dashed #cbd5e1;
+    background: transparent;
+}
+
+.create-new:hover {
+    border-style: solid;
+    border-color: #94a3b8;
+}
+
+.delete-agent-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.agent-card:hover .delete-agent-btn {
+    opacity: 1;
+}
+
+.delete-agent-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+/* Modal Styles */
+.agent-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.agent-modal {
+    background: white;
+    width: 400px;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.agent-modal h3 {
+    margin: 0 0 20px 0;
+    color: #1e293b;
+    font-size: 1.25rem;
+}
+
+.modal-field {
+    margin-bottom: 16px;
+}
+
+.modal-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.modal-field input,
+.modal-field textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.modal-field input:focus,
+.modal-field textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.cancel-btn {
+    padding: 10px 16px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #64748b;
+    transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #f8fafc;
+}
+
+.save-btn {
+    padding: 10px 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.save-btn:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.model-select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.model-select:focus {
+    border-color: #3b82f6;
 }

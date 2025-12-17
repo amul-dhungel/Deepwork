@@ -1,12 +1,12 @@
-/** Core Editor Shell */
+/** MS Word Style Editor */
+
+/* Main Shell */
 .editor-shell {
     display: flex;
     flex-direction: column;
     height: 100vh;
     background-color: #f3f3f3;
-    /* Light gray background */
     overflow: hidden;
-    /* Toolbar stays fixed, container scrolls */
 }
 
 /* Scrollable Container */
@@ -15,38 +15,28 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 40px 0;
-    /* Vertical padding around the page */
     display: block;
-    /* FLIX: Changed from flex to block to avoid Lexical/Chrome focusing issues */
     text-align: center;
-    /* Helper to center the child inline-block/block if needed */
 }
 
 /* The "Paper" Page */
 .editor-input {
     background-color: white;
     width: 816px;
-    /* Standard A4/Letter width approx */
     min-height: 1056px;
-    /* Standard Letter height approx */
     padding: 60px 80px;
-    /* Standard document margins */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     outline: none;
     font-family: 'Arial', sans-serif;
     font-size: 15px;
-    /* Readable default size */
     color: #000;
     position: relative;
     box-sizing: border-box;
-    /* Ensure padding doesn't affect width */
     margin: 0 auto;
-    /* FIX: Center the page in the block container */
     text-align: left;
-    /* Reset text alignment from parent's center */
 }
 
-/* Placeholder text */
+/* Placeholder */
 .editor-placeholder {
     position: absolute;
     top: 60px;
@@ -57,26 +47,23 @@
     font-size: 15px;
 }
 
-/* Theme Classes */
+/* Typography */
 .editor-paragraph {
     margin: 0 0 10px 0;
     line-height: 1.5;
 }
 
 .editor-heading-h1 {
-    /* font-size: 24px; REMOVED to allow editor resizing */
     font-weight: bold;
     margin: 16px 0 8px 0;
 }
 
 .editor-heading-h2 {
-    /* font-size: 20px; REMOVED to allow editor resizing */
     font-weight: bold;
     margin: 14px 0 6px 0;
 }
 
 .editor-heading-h3 {
-    /* font-size: 18px; REMOVED to allow editor resizing */
     font-weight: bold;
     margin: 12px 0 4px 0;
 }
@@ -141,7 +128,7 @@
     cursor: pointer;
 }
 
-/* New: Code Blocks */
+/* Code Blocks */
 .editor-code {
     background-color: #f1f5f9;
     font-family: monospace;
@@ -155,23 +142,7 @@
     position: relative;
 }
 
-.editor-code:before {
-    content: attr(data-gutter);
-    position: absolute;
-    left: 0;
-    top: 0;
-    border-right: 1px solid #ccc;
-    background-color: #eee;
-    color: #777;
-    white-space: pre-wrap;
-    text-align: right;
-    min-width: 25px;
-    padding: 8px 4px;
-    display: none;
-    /* simplified for now */
-}
-
-/* Syntax Highlighting (prism-like) */
+/* Syntax Highlighting */
 .editor-tokenComment {
     color: slategray;
 }
@@ -204,7 +175,7 @@
     color: #dd4a68;
 }
 
-/* New: Tables */
+/* Tables */
 .editor-table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -225,7 +196,7 @@
     font-weight: bold;
 }
 
-/* New: Horizontal Rule */
+/* Horizontal Rule */
 .editor-hr {
     border: none;
     border-top: 1px solid #cbd5e1;
@@ -234,10 +205,10 @@
 }
 
 .editor-hr.selected {
-    outline: 2px solid #2563eb;
+    outline: 2px solid #dc2626;
 }
 
-/* New: Images */
+/* Images */
 .editor-image {
     max-width: 100%;
     height: auto;
@@ -246,7 +217,7 @@
 }
 
 .editor-image.focused {
-    outline: 2px solid #2563eb;
+    outline: 2px solid #dc2626;
 }
 
 /* Checklist */
@@ -262,16 +233,67 @@
     gap: 8px;
 }
 
-.editor-checklist .editor-listitem:before {
-    content: '';
-    /* This logic is handled by CheckListPlugin usually, 
-       replacing standard bullets with checkboxes. 
-       We will need careful CSS or SVG replacement if using standard lists. 
-       Actually, standard ListItemNode supports checking via attribute? 
-       No, Lexical CheckListPlugin changes the DOM structure slightly. */
+/* Page Break - Visual Gap */
+.page-break {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Create the "gap" effect */
+    height: 30px;
+    background-color: #f3f3f3;
+    /* Matches global background to look like a hole */
+    margin: 30px -80px;
+    /* Negative margin to pull to the edges of the paper */
+
+    /* Borders to simulate page edges */
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+
+    /* Shadows to give depth to the pages above and below */
+    box-shadow:
+        inset 0 10px 10px -10px rgba(0, 0, 0, 0.05),
+        /* Shadow from top page */
+        inset 0 -10px 10px -10px rgba(0, 0, 0, 0.05);
+    /* Shadow from bottom page */
+
+    cursor: default;
+    user-select: none;
+
+    /* Print Layout behavior */
+    page-break-after: always;
+    break-after: page;
 }
 
-/* New: Loading Animation */
+/* Hide the old line and label by default to look like a real page break */
+.page-break-line,
+.page-break-label {
+    display: none;
+}
+
+/* When hovering or selected, give a hint that it's a selectable object */
+.page-break:hover,
+.page-break.selected {
+    background-color: #e8eaed;
+}
+
+.page-break.selected {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+}
+
+/* Optional: Show label on hover for clarity if needed */
+.page-break:hover::after {
+    content: "Page Break";
+    position: absolute;
+    font-size: 10px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Loading Animation */
 @keyframes gradientBG {
     0% {
         background-position: 0% 50%;

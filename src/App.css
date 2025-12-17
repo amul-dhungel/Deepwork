@@ -1,7 +1,7 @@
 /* Global Theme Variables */
 :root {
-  --color-primary: #0078d4;
-  --color-primary-dark: #106ebe;
+  --color-primary: #e63946;
+  --color-primary-dark: #d62828;
   --bg-canvas: #f0f2f5;
   --bg-paper: #ffffff;
   --text-primary: #242424;
@@ -75,9 +75,7 @@
   align-items: flex-start;
   scroll-behavior: smooth;
   background-color: #f0f2f5;
-}
-
-/* Gray background for contrast */
+  /* Gray background for contrast */
 }
 
 /* Mobile Responsive */

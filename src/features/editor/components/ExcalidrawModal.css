@@ -1,0 +1,99 @@
+.excalidraw-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2px);
+}
+
+.excalidraw-modal-content {
+    width: 90vw;
+    height: 90vh;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.excalidraw-modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8fafc;
+}
+
+.excalidraw-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.excalidraw-modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-secondary,
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-secondary {
+    background-color: white;
+    border-color: #e2e8f0;
+    color: #64748b;
+}
+
+.btn-secondary:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+.btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.excalidraw-canvas-wrapper {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
