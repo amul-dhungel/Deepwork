@@ -26,9 +26,11 @@ dist-ssr
 # Backend / Python
 backend/win_venv
 backend/venv
+backend/venv_new
 venv/
 backend/__pycache__
 backend/.env
+backend/image_cache
 __pycache__
 *.pyc
 .env
